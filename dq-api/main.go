@@ -22,6 +22,10 @@ type ValidationReport struct {
 	Issues      []ValidationIssue `json:"issues"`
 }
 
+func validateData() {
+	return
+}
+
 func startServer() {
 	router := gin.Default()
 
