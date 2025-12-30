@@ -22,8 +22,35 @@ type ValidationReport struct {
 	Issues      []ValidationIssue `json:"issues"`
 }
 
-func validateData() {
-	return
+func validateData(data []map[string]interface{}) ValidationReport {
+	report := ValidationReport{
+		TotalRows:   len(data),
+		ValidRows:   0,
+		InvalidRows: 0,
+		Issues:      []ValidationIssue{},
+	}
+	for i, row := range data {
+		rowValid := true
+		for column, value := range row {
+			if value == nil || value == "" {
+				issue := ValidationIssue{
+					Row:     i + 1,
+					Field:   column,
+					Message: "Value is Null or empty",
+					Rule:    "Not Null",
+				}
+				report.Issues = append(report.Issues, issue)
+				rowValid = false
+			}
+		}
+		if rowValid {
+			report.ValidRows++
+		} else {
+			report.InvalidRows++
+		}
+
+	}
+	return report
 }
 
 func startServer() {
@@ -46,7 +73,10 @@ func startServer() {
 			})
 
 			return
+
 		}
+		report := validateData(data.Data)
+		c.JSON(200, report)
 	})
 
 	// Start server
